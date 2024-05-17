@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        depends_on:
+            - db
+
+        volumes:
+            - .:/app
+
+        env_file:
+            - .env
+
+    db:
+        container_name: mongodb
+        image: mongo:latest
+        restart: always
+        ports:
+            - "27017:27017"
+        volumes:
+            - db-vol:/data/db
+
+volumes:
+    db-vol: {}

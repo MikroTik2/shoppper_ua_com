@@ -1,0 +1,45 @@
+const app = require('../express.js');
+const log = require('../models/log.js');
+const mongoose = require("mongoose");
+const http = require("http");
+require('dotenv').config();
+
+const port = process.env.PORT || process.env.PORT_NODE;
+app.set('port', port);
+
+const server = http.createServer(app);
+
+mongoose.connect(process.env.MONGO_URL).then(() => {
+
+     log.info("Successfully connected to the database");
+     server.listen(port);
+ 
+     server.on('error', onError);
+     server.on('listening', onListening);
+
+}).catch(err => {
+     log.error("An error occurred while connecting to the database: " + err);
+     process.exit(1);
+});
+
+function onError(error) {
+     switch (error.code) {
+          case 'EACCES':
+               log.error('Port ' + error.port + ' requires elevated privileges');
+               process.exit(1);
+               break;
+
+          case 'EADDRINUSE':
+               log.error('Port ' + error.port + ' is already in use');
+               process.exit(1);
+               break;
+               
+          default:
+               log.error('An error occurred: ' + error.code);
+               process.exit(1);
+     };
+};
+
+function onListening() {
+     log.info('HTTP servers listening on port ' + port);
+};
